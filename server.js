@@ -74,6 +74,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
   });
 
+// Read the current version
+app.get('/version', (req,res) => {
+  const version_str = fs.readFileSync('version.txt', 'utf-8');
+  res.send(version_str)
+  
+})
+
 // Handle file upload with password
 app.post('/upload', upload.single('file'), (req, res) => {
     const { password, otp } = req.body;
@@ -88,12 +95,18 @@ app.post('/upload', upload.single('file'), (req, res) => {
         // Accept the temp file
         fs.rename('uploads/temp.bin', 'uploads/musicbox.bin', (err)=> {})
 
-        res.sendFile(path.join(__dirname, 'index.html'));
+        // Increase the version
+        const version_str = fs.readFileSync('version.txt', 'utf-8');
+        let version = +version_str
+        fs.writeFileSync('version.txt', ++version + '') // Increase the version and write it to file
+
+        // Send success message
+        res.send('Successfully uploaded version '+ version);
         
       }
 
       else {
-      // OTP incorrect, reject the file
+      // credentials incorrect, reject the file
       fs.unlink('uploads/temp.bin', (err)=> {});
       res.status(401).send('Unauthorized');
     }
