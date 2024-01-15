@@ -49,7 +49,7 @@ app.get('/upload', (req, res) => {
         const mailOptions = {
             from: process.env.MAILER_USER,
             to: process.env.MAILER_DEST,
-            subject: 'MUSICBOX Binary Upload',
+            subject: 'Binary Upload',
             text: `Code: ${code}`,
         };
 
@@ -93,7 +93,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       {
 
         // Accept the temp file
-        fs.rename('uploads/temp.bin', 'uploads/musicbox.bin', (err)=> {})
+        fs.rename('uploads/temp.bin', 'uploads/binary.bin', (err)=> {})
 
         // Increase the version
         const version_str = fs.readFileSync('version.txt', 'utf-8');
