@@ -34,38 +34,30 @@ const upload = multer({ storage });
 
 // Serve HTML form for file upload
 app.get('/upload', (req, res) => {
-    const password = req.query.password;
-    if (password == process.env.URL_PASS) {
-        
-        // Password is correct
-        // Serve the HTML form for file upload
-        res.sendFile(path.join(__dirname, 'upload.html'))
 
-        // Generate 2fa code and send to me
-        const code = generateRandomPassword(50)
-        fs.writeFileSync('2fa.txt', code)
+    res.sendFile(path.join(__dirname, 'upload.html'))
 
-        // Email
-        const mailOptions = {
-            from: process.env.MAILER_USER,
-            to: process.env.MAILER_DEST,
-            subject: 'Binary Upload',
-            text: `Code: ${code}`,
-        };
+    // Generate 2fa code and send it
+    const code = generateRandomPassword(50)
+    fs.writeFileSync('2fa.txt', code)
 
-        // Send the email
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-            console.log('Error sending email:', error);
-            res.status(500).json({ message: 'Failed to send the email' });
-            } else {
-            res.status(200).json({ message: 'Email sent successfully' });
-            }
-        });
-      } else {
-        
-        res.status(401).send('404 Not found');
-      }
+    // Prepare to email the OTP
+    const mailOptions = {
+        from: process.env.MAILER_USER,
+        to: process.env.MAILER_DEST,
+        subject: 'Binary Upload',
+        text: `Code: ${code}`,
+    };
+
+    // Send the email with OTP
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+        console.log('Error sending email:', error);
+        res.status(500).json({ message: 'Failed to send the email' });
+        } else {
+        res.status(200).json({ message: 'Email sent successfully' });
+        }
+    });
     
   });
 
